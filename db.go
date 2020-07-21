@@ -20,7 +20,9 @@ func CreateDB(basepath string) error {
 				uuid text unique not null, 
 				shortname text not null, 
 				longdesc text,
-				citype text);`
+				citype text,
+				tschg text,
+				);`
 	_, err = db.Exec(sqlStmt)
 	dbe(err, sqlStmt)
 
@@ -33,6 +35,7 @@ func CreateDB(basepath string) error {
 				activefrom text,
 				activeto text,
 				license text,
+				tschg text,
 				ciuuid text,
 				foreign key(ciuuid) references ci(uuid)
 				);`
@@ -41,6 +44,7 @@ func CreateDB(basepath string) error {
 
 	// A generic hardware table
 	sqlStmt = `create table hwtable (id integer not null,
+				uuid text unique not null, 
 				cpucount text,
 				cputype text,
 				cpucores text,
@@ -49,6 +53,7 @@ func CreateDB(basepath string) error {
 				storagesize text,
 				storagetype text,
 				powerconsumption integer,
+				tschg text,
 				ciuuid text,
 				foreign key(ciuuid) references ci(uuid)
 				);`
@@ -57,6 +62,7 @@ func CreateDB(basepath string) error {
 
 	// A generic software table
 	sqlStmt = `create table swtable (id integer not null,
+				uuid text unique not null, 
 				shortname text,
 				longname text,
 				manufacturer text,
@@ -64,6 +70,7 @@ func CreateDB(basepath string) error {
 				patchlevel text,
 				year text,
 				platform text,
+				tschg text,
 				ciuuid text,
 				foreign key(ciuuid) references ci(uuid)
 				)`
@@ -72,6 +79,7 @@ func CreateDB(basepath string) error {
 
 	// A generic table for network configurations
 	sqlStmt = `create table netconf (id integer not null,
+				uuid text unique not null, 
 				ipaddr text,
 				macaddr text,
 				subnet text,
@@ -79,6 +87,7 @@ func CreateDB(basepath string) error {
 				dns text,
 				dhcpd text,
 				ciuuid text,
+				tschg text,
 				netseguuid text,
 				foreign key(netseguuid) references netsegment(uuid),
 				foreign key(ciuuid) references ci(uuid)
@@ -93,6 +102,7 @@ func CreateDB(basepath string) error {
 				subject text,
 				citxt text,
 				scan blob,
+				tschg text,
 				ciuuid text,
 				foreign key(ciuuid) references ci(uuid)
 				);`
@@ -101,17 +111,18 @@ func CreateDB(basepath string) error {
 
 	// A table for generic netsegment configurations
 	sqlStmt = `create table netsegment (id integer not null,
-				uuid text,
 				netname text,
 				gateway text,
 				firstaddr text,
 				lastaddr text
+				tschg text,
 				);`
 	_, err = db.Exec(sqlStmt)
 	dbe(err, sqlStmt)
 
-	// A table for physical locations
+	// A table for physical and logical locations
 	sqlStmt = `create table cilocation (id integer not null,
+				uuid text unique not null,
 				locname text,
 				shortdesc text,
 				country text,
@@ -123,11 +134,22 @@ func CreateDB(basepath string) error {
 				shelf text,
 				rack text,
 				misc text,
+				uri text,
+				tschg text,
 				ciuuid text,
 				foreign key(ciuuid) references ci(uuid)
 				);`
 	_, err = db.Exec(sqlStmt)
 	dbe(err, sqlStmt)
+
+
+	// A system table to connect configuration type items
+	sqlStmt = `create table systems(id integer not null,
+				uuid text unique not null,
+				thisuuid text,
+				hasuuid text,
+				tschg text,
+				);`
 
 	// Insert default values
 	_, err = db.Exec("insert into tinycmdb(version) values('1.0')")
